@@ -58,7 +58,6 @@ class VirusBot():
 
 
 # optional sms function
-# fill out with your credentials
 """ def send_sms(country, total_cases, new_cases, total_deaths, new_deaths, active_cases, total_recovered, serious_critical):
         account_sid = 'your sid here'
         auth_token = 'your token here'
