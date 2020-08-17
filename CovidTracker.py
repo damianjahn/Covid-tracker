@@ -20,7 +20,7 @@ class VirusBot():
         # storing the table element in a variable
         table = self.driver.find_element_by_xpath('//*[@id="main_table_countries_today"]')
         # specifying what country you want to analyze
-        country = table.find_element_by_xpath("//td[contains(., 'USA')]")
+        country = table.find_element_by_xpath("//td[contains(., 'Poland')]")
         # specifying the country row
         row = country.find_element_by_xpath("./..")
         # formatting the columns
@@ -28,7 +28,7 @@ class VirusBot():
 
         sleep(1)
 
-        # scraping each row cell for "USA"
+        # scraping each row cell for "Poland"
         total_cases = cell[2]
         new_cases = cell[3]
         total_deaths = cell[4]
