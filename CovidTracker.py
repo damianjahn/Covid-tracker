@@ -4,8 +4,24 @@ from time import sleep
 from twilio.rest import Client
 
 
+# sms function
+def send_sms(total_cases, new_cases, total_deaths, new_deaths, active_cases, total_recovered, serious_critical):
+    account_sid = 'your account_sid'
+    auth_token = 'your auth_token'
+    client = Client(account_sid, auth_token)
+
+    message = client.messages \
+        .create(
+            body=f"The today report of COVID-19 in Poland. Total Cases: {total_cases}, New Cases: {new_cases}, Total "
+                 f"deaths: {total_deaths}, New deaths: {new_deaths}, Active cases: {active_cases}, Total recove"
+                 f"red: {total_recovered}, Serious critical cases: {serious_critical}",
+            from_='Twilio number',
+            to='number'
+        )
+
+
 # start up the webdriver and create a dataframe
-class VirusBot():
+class VirusBot:
     def __init__(self):
         self.driver = webdriver.Chrome()
         # define csv file columns
@@ -17,6 +33,7 @@ class VirusBot():
     def tracker(self):
         # telling the driver what web page to open
         website = self.driver.get('https://worldometers.info/coronavirus/')
+        sleep(5)
         # storing the table element in a variable
         table = self.driver.find_element_by_xpath('//*[@id="main_table_countries_today"]')
         # specifying what country you want to analyze
@@ -26,57 +43,36 @@ class VirusBot():
         # formatting the columns
         cell = row.text.split(" ")
 
-        sleep(1)
-
         # scraping each row cell for "Poland"
-        total_cases = cell[2]
-        new_cases = cell[3]
-        total_deaths = cell[4]
-        new_deaths = cell[5]
-        active_cases = cell[6]
-        total_recovered = cell[7]
-        serious_critical = cell[8]
+        self.total_cases = cell[2]
+        self.new_cases = cell[3]
+        self.total_deaths = cell[4]
+        self.new_deaths = cell[5]
+        self.active_cases = cell[6]
+        self.total_recovered = cell[7]
+        self.serious_critical = cell[8]
 
         # append results to columns in dataframe
         self.df = self.df.append(
-            {'total_cases': total_cases,
-             'new_cases': new_cases,
-             'total_deaths': total_deaths,
-             'new_deaths': new_deaths,
-             'active_cases': active_cases,
-             'total_recovered': total_recovered,
-             'serious_critical': serious_critical}, ignore_index=True)
+            {'total_cases': self.total_cases,
+             'new_cases': self.new_cases,
+             'total_deaths': self.total_deaths,
+             'new_deaths': self.new_deaths,
+             'active_cases': self.active_cases,
+             'total_recovered': self.total_recovered,
+             'serious_critical': self.serious_critical}, ignore_index=True)
 
     # export function to create the CSV file
     def scrape_to_csv(self):
         self.df.to_csv('scraped_data.csv')
 
-        # send_sms(country, total_cases, new_cases, total_deaths, new_deaths, active_cases, total_recovered, serious_critical)
+        send_sms(self.total_cases, self.new_cases, self.total_deaths, self.new_deaths, self.active_cases,
+                 self.total_recovered, self.serious_critical)
 
         # close the web driver when results are reported
         self.driver.close()
 
 
-# optional sms function
-""" def send_sms(country, total_cases, new_cases, total_deaths, new_deaths, active_cases, total_recovered, serious_critical):
-        account_sid = 'your sid here'
-        auth_token = 'your token here'
-        client = Client(account_sid, auth_token)
-
-        message = client.messages \
-                        .create(
-                            body="The toal coronavirus cases in country were..'\
-                                \nTotal cases: ' + total_cases +'\
-                                \nNew cases: ' + new_cases + '\
-                                \nTotal deaths: ' + total_deaths + '\
-                                \nNew deaths: ' + new_deaths + '\
-                                ...",
-                                from_='your twilio number',
-                                to='your personal phone number'
-                            )
-
-    self.driver.quit()
- """
 # calling functions
 bot = VirusBot()
 bot.tracker()
